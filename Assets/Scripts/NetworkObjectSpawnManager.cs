@@ -37,7 +37,7 @@ public class NetworkObjectSpawnManager : MonoBehaviour
         {
             foreach (QueuedNetworkObject i in objectQueue)
             {
-                SpawnObject(i.obj, i.pos, i.rot, i.perma);
+                SpawnObject(i.obj, i.pos, i.rot, i.perma, i.roomIDX, i.roomCallback);
             }
 
             objectQueue.Clear();
@@ -51,19 +51,19 @@ public class NetworkObjectSpawnManager : MonoBehaviour
     /// <param name="pos"></param>
     /// <param name="rot"></param>
     /// <param name="perma"></param>
-    public void SpawnObject(GameObject obj, Vector3 pos, Quaternion rot, bool perma = false)
+    public void SpawnObject(GameObject obj, Vector3 pos, Quaternion rot, bool perma = false, int roomIndex = -1, System.Action<GameObject> callback = null)
     {
         if (!Ready) return;
 
         if (!SceneLoaded)
         {
-            QueueObject(new QueuedNetworkObject(obj, pos, rot, perma)); // Create new queue object with request information, not scene loaded.
+            QueueObject(new QueuedNetworkObject(obj, pos, rot, perma, roomIndex, callback)); // Create new queue object with request information, not scene loaded.
             return;
         }
 
         if (!perma)
         {
-            spawner.SpawnNetworkObject(obj, pos, rot);
+            spawner.SpawnNetworkObject(obj, pos, rot, roomIndex, callback);
         }
         else
         {
@@ -79,6 +79,28 @@ public class NetworkObjectSpawnManager : MonoBehaviour
     {
         objectQueue.Add(obj);
     }
+
+    /// <summary>
+    /// Called by NetworkGameManager - spawn a room - only called for host
+    /// </summary>
+    /// <param name="index"></param>
+    public void SpawnRoom(int index) 
+    {
+        RoomData prevData = NetworkGameManager.Singleton.GetLastRoom(); // get previous room for end position
+        RoomData data = NetworkGameManager.Singleton.roomsToSpawn.Dequeue(); // get new room from room queue
+
+        SpawnObject(data.gameObject, prevData.endPos.position, prevData.endPos.rotation, false, index, NetworkGameManager.Singleton.RoomCreated); // spawn room using the previous room end position as reference, with callback to game manager
+    }
+
+    public void DespawnRoomObjects(int index)
+    {
+        spawner.DespawnRoomObjects(index);
+    }
+
+    public void SpawnRush()
+    {
+        spawner.SpawnRush();
+    }
 }
 
 public class QueuedNetworkObject // Class for storing spawn requests in queue
@@ -87,12 +109,22 @@ public class QueuedNetworkObject // Class for storing spawn requests in queue
     public Vector3 pos;
     public Quaternion rot;
     public bool perma;
+    public int roomIDX;
+    public System.Action<GameObject> roomCallback;
 
-    public QueuedNetworkObject(GameObject gamObj, Vector3 position, Quaternion rotation, bool permanent)
+    public QueuedNetworkObject(GameObject gamObj, Vector3 position, Quaternion rotation, bool permanent, int roomIndex = -1, System.Action<GameObject> callback = null)
     {
         obj = gamObj;
         pos = position;
         rot = rotation;
         perma = permanent;
+        if (roomIndex != -1)
+        {
+            roomIDX = roomIndex;
+        }
+        if (callback != null)
+        {
+            roomCallback = callback;
+        }
     }
 }

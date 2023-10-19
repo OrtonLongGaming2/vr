@@ -289,6 +289,7 @@ GameObject:
   - component: {fileID: 177831070363491315}
   - component: {fileID: 8009215192407793246}
   - component: {fileID: 3358046041844585145}
+  - component: {fileID: 6823232413064816307}
   m_Layer: 0
   m_Name: Wallstrip4
   m_TagString: Untagged
@@ -359,6 +360,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &6823232413064816307
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7764331472535928065}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1.251358, y: 15.5002, z: 1.251358}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8105309554673075560
 GameObject:
   m_ObjectHideFlags: 0

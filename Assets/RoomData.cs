@@ -8,14 +8,17 @@ public class RoomData : MonoBehaviour
     public int RoomIndex = -1;
     public List<RoomNetworkObject> roomNetworkObjs = new List<RoomNetworkObject>();
     //public Transform startPos;
-    //public Transform endPos;
+    public Transform endPos;
+    public List<Transform> rushPositions;
+    [HideInInspector]
+    public List<Transform> networkRushPositions = new List<Transform>();
 }
 
 [Serializable]
 public class RoomNetworkObject
 {
     public GameObject prefab;
-    public Vector3 pos;
-    public Vector3 eulerRot;
-    public Vector3 scale;
+    public Transform positioning;
+    //public Vector3 pos;
+    //public Vector3 eulerRot;
 }

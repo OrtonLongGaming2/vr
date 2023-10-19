@@ -220,6 +220,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1307543515180248331, guid: 4007fa8f59ebce94e9d1dc7d55168ec3, type: 3}
+      propertyPath: rushPrefab
+      value: 
+      objectReference: {fileID: 3235946844711695711, guid: b272558fbd5c55648acdcc0e1a8dc368, type: 3}
+    - target: {fileID: 1307543515180248331, guid: 4007fa8f59ebce94e9d1dc7d55168ec3, type: 3}
+      propertyPath: startRoomPrefab
+      value: 
+      objectReference: {fileID: 6268315185594166448, guid: cea4ba518aaf37c468d2a64ec2157b68, type: 3}
+    - target: {fileID: 1307543515180248331, guid: 4007fa8f59ebce94e9d1dc7d55168ec3, type: 3}
+      propertyPath: loopableRoomPrefabs.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1307543515180248331, guid: 4007fa8f59ebce94e9d1dc7d55168ec3, type: 3}
+      propertyPath: loopableRoomPrefabs.Array.data[0]
+      value: 
+      objectReference: {fileID: 8359961051201375283, guid: e94f5c97815d9354a9c401f3d654e1d2, type: 3}
+    - target: {fileID: 1307543515180248331, guid: 4007fa8f59ebce94e9d1dc7d55168ec3, type: 3}
+      propertyPath: loopableRoomPrefabs.Array.data[1]
+      value: 
+      objectReference: {fileID: 297386643298073820, guid: c03f1c96643920342a514a414039780d, type: 3}
+    - target: {fileID: 1307543515180248331, guid: 4007fa8f59ebce94e9d1dc7d55168ec3, type: 3}
+      propertyPath: loopableRoomPrefabs.Array.data[2]
+      value: 
+      objectReference: {fileID: 5541502908750915093, guid: a139d8e2e2ddab74eb68c7122d1280bb, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4007fa8f59ebce94e9d1dc7d55168ec3, type: 3}
 --- !u!1 &83515930
@@ -1710,7 +1734,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_System: {fileID: 475590793}
-  m_MoveSpeed: 1
+  m_MoveSpeed: 1.5
   m_EnableStrafe: 1
   m_EnableFly: 0
   m_UseGravity: 1

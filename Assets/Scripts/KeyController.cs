@@ -7,7 +7,7 @@ using Unity.Netcode;
 
 public class KeyController : IKey
 {
-    public NetworkVariable<int> AssignedDoor = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    public NetworkVariable<int> AssignedDoor = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     public TextMeshProUGUI numberText;
 

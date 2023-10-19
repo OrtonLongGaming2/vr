@@ -175,6 +175,7 @@ GameObject:
   - component: {fileID: -5895180012482300456}
   - component: {fileID: 6050346815234195374}
   - component: {fileID: 3852492085867102603}
+  - component: {fileID: 5115532992106519881}
   m_Layer: 0
   m_Name: VR Character
   m_TagString: Untagged
@@ -452,7 +453,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad8deae8091111f4eb30a56c1f4e0d3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TransitionStateInfoList: []
+  TransitionStateInfoList:
+  - IsCrossFadeExit: 0
+    Layer: 2
+    OriginatingState: -1550871708
+    DestinationState: -837680432
+    TransitionDuration: 0
+    TriggerNameHash: 20298039
+    TransitionIndex: 0
   m_Animator: {fileID: 6364394370319597337}
 --- !u!114 &664363804865692371
 MonoBehaviour:
@@ -520,6 +528,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 336af29e11dec8046a0d755c5983d494, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &5115532992106519881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 430413231239512025}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d145b637069da3146b9e2b3e2068b944, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  death: 0
+  animator: {fileID: 6364394370319597337}
+  builder: {fileID: 664363804865692365}
+  follower: {fileID: 664363804865692366}
 --- !u!1 &588144262488781788
 GameObject:
   m_ObjectHideFlags: 0
@@ -1373,7 +1397,7 @@ GameObject:
   - component: {fileID: 1559498674970719514}
   m_Layer: 0
   m_Name: Left Arm IK_target
-  m_TagString: Untagged
+  m_TagString: LeftHand
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1495,7 +1519,7 @@ GameObject:
   - component: {fileID: 6185480173290103599}
   m_Layer: 0
   m_Name: Right Arm IK_target
-  m_TagString: Untagged
+  m_TagString: RightHand
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
