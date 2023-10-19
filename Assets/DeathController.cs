@@ -10,6 +10,7 @@ public class DeathController : NetworkBehaviour
 
     [SerializeField] private RigBuilder builder;
     [SerializeField] private IKTargetFollowVRRig follower;
+    [SerializeField] private Animator animator;
 
     public List<Collider> col;
     public List<Rigidbody> rb;
@@ -24,6 +25,17 @@ public class DeathController : NetworkBehaviour
         foreach (Collider i in col)
         {
             i.enabled = false;
+        }        
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (!IsOwner) // disable IK for other clients so it can be seen
+        {
+            builder.enabled = false;
+            follower.enabled = false;
         }
     }
 
@@ -33,6 +45,7 @@ public class DeathController : NetworkBehaviour
         {
             builder.enabled = false;
             follower.enabled = false;
+            animator.enabled = false;
 
             //animator.SetLayerWeight(2, 1);
             //animator.SetTrigger("Die");
