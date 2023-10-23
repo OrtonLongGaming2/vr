@@ -53,13 +53,15 @@ public class NetworkObjectSpawnManager : MonoBehaviour
     /// <param name="perma"></param>
     public void SpawnObject(GameObject obj, Vector3 pos, Quaternion rot, bool perma = false, int roomIndex = -1, System.Action<GameObject> callback = null)
     {
-        if (!Ready) return;
+        if (!Ready) return; // if not the host, basically.
 
-        if (!SceneLoaded)
+        if (!SceneLoaded) // if players have not all hit ready button, queue spawn for later
         {
             QueueObject(new QueuedNetworkObject(obj, pos, rot, perma, roomIndex, callback)); // Create new queue object with request information, not scene loaded.
             return;
         }
+
+        // can spawn now
 
         if (!perma)
         {
@@ -86,6 +88,8 @@ public class NetworkObjectSpawnManager : MonoBehaviour
     /// <param name="index"></param>
     public void SpawnRoom(int index) 
     {
+        if (!Ready) return; // if not the host, basically.
+
         RoomData prevData = NetworkGameManager.Singleton.GetLastRoom(); // get previous room for end position
         RoomData data = NetworkGameManager.Singleton.roomsToSpawn.Dequeue(); // get new room from room queue
 
@@ -94,11 +98,15 @@ public class NetworkObjectSpawnManager : MonoBehaviour
 
     public void DespawnRoomObjects(int index)
     {
+        if (!Ready) return; // if not the host, basically.
+
         spawner.DespawnRoomObjects(index);
     }
 
     public void SpawnRush()
     {
+        if (!Ready) return; // if not the host, basically.
+
         spawner.SpawnRush();
     }
 }

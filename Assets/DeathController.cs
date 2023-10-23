@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.Animations.Rigging;
+using UnityEngine.XR.Interaction.Toolkit;
 
 public class DeathController : NetworkBehaviour
 {
@@ -11,6 +12,8 @@ public class DeathController : NetworkBehaviour
     [SerializeField] private RigBuilder builder;
     [SerializeField] private IKTargetFollowVRRig follower;
     [SerializeField] private Animator animator;
+    [SerializeField] private GameObject deathSound;
+    private bool shownCorpse = false;
 
     public List<Collider> col;
     public List<Rigidbody> rb;
@@ -28,39 +31,61 @@ public class DeathController : NetworkBehaviour
         }        
     }
 
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-
-        if (!IsOwner) // disable IK for other clients so it can be seen
-        {
-            builder.enabled = false;
-            follower.enabled = false;
-        }
-    }
-
     void Update()
     {
         if (death)
         {
-            builder.enabled = false;
-            follower.enabled = false;
-            animator.enabled = false;
+            DisableClientRpc(); //disable components for all clients - pls work            
 
-            //animator.SetLayerWeight(2, 1);
-            //animator.SetTrigger("Die");
-            //transform.localPosition = new Vector3(transform.localPosition.x, 0.18f, transform.localPosition.z);
+            // kill for first time
 
-            foreach (Collider i in col)
+            if (!shownCorpse)
             {
-                i.enabled = true;
-            }
+                shownCorpse = true; // prevent looping code
 
-            foreach (Rigidbody i in rb)
-            {
-                i.isKinematic = false;
-                i.detectCollisions = true;
+                Renderer[] renderers = GetComponentsInChildren<Renderer>();
+
+                foreach (Renderer i in renderers) // show corpse
+                {
+                    i.enabled = true;
+                }
+
+                GameObject.Find("XR Origin").GetComponent<ActionBasedContinuousMoveProvider>().moveSpeed = 0; // prevent player movement
+
+                deathSound.SetActive(true); // play death sound
             }
+        }
+    }
+
+    [ClientRpc]
+    public void DisableClientRpc()
+    {
+        //disable components that make ragdoll work
+
+        builder.enabled = false;
+        follower.enabled = false;
+        animator.enabled = false;
+
+        // allow ragdollin
+
+        foreach (Collider i in col)
+        {
+            i.enabled = true;
+        }
+
+        foreach (Rigidbody i in rb)
+        {
+            i.isKinematic = false;
+            i.detectCollisions = true;
+        }
+    }
+
+    //call death from other components
+    public void Die()
+    {
+        if (IsOwner)
+        {
+            death = true;
         }
     }
 }

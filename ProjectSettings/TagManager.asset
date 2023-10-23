@@ -8,6 +8,9 @@ TagManager:
   - RightHand
   - Flashlight
   - Key
+  - PlayerNetwork
+  - Wardrobe
+  - WardrobeDoorOpen
   layers:
   - Default
   - TransparentFX
@@ -25,7 +28,7 @@ TagManager:
   - 
   - 
   - CollectableItem
-  - 
+  - NetworkTriggers
   - 
   - 
   - 

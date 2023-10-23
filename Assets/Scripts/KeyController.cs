@@ -7,24 +7,23 @@ using Unity.Netcode;
 
 public class KeyController : IKey
 {
-    public NetworkVariable<int> AssignedDoor = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public NetworkVariable<int> AssignedDoor = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server); // key door number to display and use to check if correct key for door
 
-    public TextMeshProUGUI numberText;
+    public TextMeshProUGUI numberText; // text component set via monobehavior
 
-    public override KeyType type
+    public override KeyType type // if key can unlock every door or just the room number one
     {
         get { return KeyType.RoomNumber; }
     }
 
-    private void Update()
+    private void Update() // update number text to match
     {
-        //if (!IsOwner) return;
-
         if (numberText != null)
         {
             string textToSet;
             int absDoorNumber = Mathf.Abs(AssignedDoor.Value);
 
+            //make number use 0s before digits so always 4 digits
             if (absDoorNumber > 999)
             {
                 textToSet = absDoorNumber.ToString();
@@ -51,14 +50,15 @@ public class KeyController : IKey
         }
     }
 
-    public void SetRoomNumber(int value)
+    public void SetRoomNumber(int value) // set the room number for this key
     {
         if (IsHost || IsServer)
         {
-            SetRoomNumberServerRpc(value);
+            SetRoomNumberServerRpc(value); // tell server to set network variable
         }
     }
 
+    //set network variable
     [ServerRpc(RequireOwnership = false)]
     private void SetRoomNumberServerRpc(int value)
     {

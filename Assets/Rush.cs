@@ -31,9 +31,15 @@ public class Rush : NetworkBehaviour
     [SerializeField]
     private bool isDebug = false;
 
+    [SerializeField]
+    private GameObject farAudio;
+
+    [SerializeField]
+    private GameObject nearAudio;
+
     //METHODS
 
-    public void SetPositionAndStart(Transform startPos, List<Transform> waypoints)
+    public void SetPositionAndStart(List<Transform> waypoints)
     {
         if (!IsHost && !isDebug) return;
 
@@ -42,7 +48,7 @@ public class Rush : NetworkBehaviour
         if (positions == null) return;
         if (positions.Count <= 0) return;
 
-        transform.position = startPos.position; // set position to start position
+        transform.position = waypoints[0].position; // set position to start position
 
         transform.rotation = Quaternion.LookRotation(waypoints[1].position - transform.position); // point in movement
 
@@ -51,16 +57,30 @@ public class Rush : NetworkBehaviour
         Transform newPos = positions[0];
         positions.Remove(newPos); // remove waypoint from list
 
-        StartCoroutine(WaitAndRush(newPos, waypoints));
+        StartCoroutine(WaitAndRush(newPos, waypoints)); // handle delay
     }
 
     private IEnumerator WaitAndRush(Transform newPos, List<Transform> waypoints)
     {
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(10); // add 10 second delay before rushing
 
-        MoveTo(newPos, NextPoint);
+        Debug.Log("rush activated");
+
+        ActivateAudioClientRpc(); // activate audio emitters
+
+        MoveTo(newPos, NextPoint); // begin movement
+
+        yield return null;
     }
 
+    [ClientRpc]
+    public void ActivateAudioClientRpc()
+    {
+        farAudio.SetActive(true);
+        nearAudio.SetActive(true);
+    }
+
+    // set enxt waypoint
     private void NextPoint()
     {
         if (positions == null) return;
@@ -80,6 +100,7 @@ public class Rush : NetworkBehaviour
         }
     }
 
+    //initialize tween between waypoints
     public void MoveTo(Transform destination, Action onComplete)
     {
         Vector3 fixedDest = new Vector3(destination.position.x, 0f, destination.position.z);
@@ -93,6 +114,7 @@ public class Rush : NetworkBehaviour
         completeCallback = onComplete;
     }
 
+    // manage debug and tween movement if intiialized
     private void Update()
     {
         if (!IsHost && !isDebug) return;
@@ -100,7 +122,7 @@ public class Rush : NetworkBehaviour
         if (runDebug)
         {
             runDebug = false;
-            SetPositionAndStart(debugStartPosition, new List<Transform>(debugPositions));
+            SetPositionAndStart(new List<Transform>(debugPositions));
         }
 
         if (_destination.HasValue == false) return;

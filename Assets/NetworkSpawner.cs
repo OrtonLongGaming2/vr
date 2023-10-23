@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 public class NetworkSpawner : NetworkBehaviour
 {
     private Dictionary<int, List<GameObject>> spawnedRoomObjects = new Dictionary<int, List<GameObject>>(); // for removing network objects when a room despawns.
-
+    
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -38,21 +38,31 @@ public class NetworkSpawner : NetworkBehaviour
             return;
         }
 
-        spawnedObj.Spawn(true); // spawn for clients
-
-        //call spawn finished callback if necessary - used for NetworkGameManager
-        if (callback != null)
-        {
-            callback.Invoke(go);
-        }
+        spawnedObj.Spawn(true); // spawn for clients        
 
         // spawn any other network objects that are part of the room - dressers, items, etc
         RoomData roomData = go.GetComponent<RoomData>();
         if (roomData)
         {
-            go.transform.localPosition = new Vector3(go.transform.localPosition.x, go.transform.localPosition.y, (go.transform.localPosition.z + -0.06f)); // offset room to prevent z-fighting between walls
+            go.transform.localPosition = new Vector3(go.transform.localPosition.x, go.transform.localPosition.y, (go.transform.localPosition.z + -0.2f)); // offset room to prevent z-fighting between walls
 
             roomData.RoomIndex = newRoomIdx; // set room index - used for doors and keys
+
+            Debug.Log("checking if can be dark");
+
+            if ((NetworkGameManager.Singleton.specialRoomsDict.ContainsKey(newRoomIdx) == false) && (newRoomIdx != 0)) // dont set special rooms as dark!!!
+            {
+                int rand = Random.Range(0, 4); // 1 in 4 (25%) chance to be a dark room - allows for screech to spawn...
+                if (rand == 0)
+                {
+                    Debug.Log("room index " + newRoomIdx + " set dark");
+                    roomData.SetDark(); // set dark room
+                }
+            }
+            else
+            {
+                Debug.Log("special room index " + newRoomIdx + " cannot be dark.");
+            }
 
             foreach (RoomNetworkObject i in roomData.roomNetworkObjs) // create network objects for the objects in the room - will be despawned alongside the room
             {
@@ -64,6 +74,12 @@ public class NetworkSpawner : NetworkBehaviour
                 SpawnRushPositionTransform(roomData, i);
             }
         }
+
+        //call spawn finished callback if necessary - used for NetworkGameManager
+        if (callback != null)
+        {
+            callback.Invoke(go);
+        }
     }
 
     /// <summary>
@@ -73,9 +89,12 @@ public class NetworkSpawner : NetworkBehaviour
     /// <param name="i"></param>
     private void SpawnRushPositionTransform(RoomData room, Transform i)
     {
-        GameObject go = Instantiate(new GameObject("RushPosition"), i.position, Quaternion.identity); // create empty GameObject at each waypoint position
-        NetworkObject netObj = go.AddComponent<NetworkObject>(); // add network object component
+        GameObject prefab = Resources.Load<GameObject>("RushPositionPrefab");
+        GameObject go = Instantiate(prefab, i.position, Quaternion.identity); // create empty GameObject at each waypoint position
+
+        NetworkObject netObj = go.GetComponent<NetworkObject>(); // get network object component
         netObj.Spawn(true); // spawn for clients
+
         room.networkRushPositions.Add(go.transform); // add to room list so Rush can access
     }
 
@@ -151,9 +170,15 @@ public class NetworkSpawner : NetworkBehaviour
     /// <summary>
     /// Spawns the 'Rush' Monster and gets waypoints to tween between from active rooms.
     /// </summary>
-    public void SpawnRush()
+    public void SpawnRush() // called by NetworkGameManager, host only
     {
-        GameObject go = Instantiate(NetworkGameManager.Singleton.rushPrefab); // instantiate in scene locally
+        int newRoomIdx = NetworkGameManager.Singleton.GetLastRoom().RoomIndex; // get new opened room index
+
+        if ((NetworkGameManager.Singleton.specialRoomsDict.ContainsKey(newRoomIdx) == true) || (newRoomIdx == 0) || (NetworkGameManager.Singleton.GetLastRoom().Dark.Value)) return; // cant spawn in specials, first room, or dark rooms
+
+        NetworkGameManager.Singleton.GetLastRoom().Flicker(); // flicker lights - indicate his arrival...
+
+        GameObject go = Instantiate(NetworkGameManager.Singleton.rushPrefab, new Vector3(0, 250, 0), Quaternion.identity); // instantiate in scene locally
 
         NetworkObject spawnedObj = go.GetComponent<NetworkObject>(); // get network object component to spawn
 
@@ -163,6 +188,10 @@ public class NetworkSpawner : NetworkBehaviour
         }
 
         spawnedObj.Spawn(true); // spawn for clients
+
+        Debug.Log("successfully soawned rush!");
+
+        //SETUP RUSH
 
         Rush rushData = go.GetComponent<Rush>(); // get rush component
 
@@ -178,6 +207,6 @@ public class NetworkSpawner : NetworkBehaviour
             }
         }
 
-        rushData.SetPositionAndStart(waypoints[0], waypoints); // tell rush to start and give waypoints and start waypoint
+        rushData.SetPositionAndStart(waypoints); // tell rush to start and give waypoints and start waypoint
     }
 }

@@ -20,7 +20,8 @@ public class NetworkGameManager : NetworkBehaviour // Has to be owned by host
     [SerializeField]
     private List<SpecialRoom> specialRooms; // rooms that have to spawn at certain numbers
 
-    private Dictionary<int, RoomData> specialRoomsDict = new Dictionary<int, RoomData>(); // dictionary version
+    [HideInInspector]
+    public Dictionary<int, RoomData> specialRoomsDict = new Dictionary<int, RoomData>(); // dictionary version
 
     [HideInInspector]
     public Queue<RoomData> roomsToSpawn = new Queue<RoomData>(); // rooms to spawn
@@ -87,6 +88,7 @@ public class NetworkGameManager : NetworkBehaviour // Has to be owned by host
         {
             foreach (SpecialRoom i in specialRooms)
             {
+                Debug.Log("adding index " + i.roomIndex + " to special rooms");
                 specialRoomsDict.Add(i.roomIndex, i.roomPrefab);
             }
         }
@@ -96,6 +98,7 @@ public class NetworkGameManager : NetworkBehaviour // Has to be owned by host
         {
             if (specialRoomsDict.ContainsKey(i))
             {
+                Debug.Log("enqueueing special with index " + i);
                 roomsToSpawn.Enqueue(specialRoomsDict[i]); // queue special room for index
             }
             else
@@ -126,13 +129,7 @@ public class NetworkGameManager : NetworkBehaviour // Has to be owned by host
     {
         if (doorIndex <= CurrentLoadedRoom.Value) return; // if room is already loaded, return        
 
-        NetworkObjectSpawnManager.Singleton.SpawnRoom(doorIndex); // spawn room from queue with index
-
-        int rand = Random.Range(0, 4); // 1 in 3 chance to spawn rush (temp!)
-        if (rand == 0)
-        {
-            NetworkObjectSpawnManager.Singleton.SpawnRush();
-        }
+        NetworkObjectSpawnManager.Singleton.SpawnRoom(doorIndex); // spawn room from queue with index        
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -149,7 +146,21 @@ public class NetworkGameManager : NetworkBehaviour // Has to be owned by host
 
     public void RoomCreated(GameObject obj) // callback - add room to active rooms list and set current room
     {
+        Debug.Log("caalback received");
+
         activeRooms.Add(obj); // add just created room to list of active rooms 
+
+        Debug.Log("added to active rooms");
+
+        if (!IsHost) return;
+
+        Debug.Log("checking rush chances");
+
+        int rand = Random.Range(0, 4); // 1 in 4 (25%) chance to spawn rush (temp!)
+        if (rand == 0)
+        {
+            NetworkObjectSpawnManager.Singleton.SpawnRush(); // spawn if chance hit
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -163,7 +174,7 @@ public class NetworkGameManager : NetworkBehaviour // Has to be owned by host
         return activeRooms[(activeRooms.Count - 1)].GetComponent<RoomData>();
     }
 
-    public List<GameObject> GetAllActiveRooms() // get most recently spawned roomdata
+    public List<GameObject> GetAllActiveRooms() // get all active roomdata
     {
         return activeRooms;
     }
